@@ -38,10 +38,11 @@ void PrintAllHashData()
             while (node != NULL)
             {
                 printf("%s ", node -> nodekey);
-                printf("%s\n", node -> nodevalue);
+                printf("%s ", node -> nodevalue);
                 node = node -> next;
             }
         }
+        printf("\n");
     }
 }
 // 위의 PrintAllHashData함수는 디버깅 테스트용 - 추후 삭제
@@ -56,14 +57,14 @@ int kvget(char *key, char *buf)
 	{
 		if (temp == NULL) // 해시 테이블이 비어 있으면 
 		{
-			return NULL; // NULL을 리턴하고 반복문 종료. 
+			buf = NULL; // buf에 NULL을 넣음. 
+			return 0; // 0을 리턴하고 함수 종료. 
 		}
 		
 		else if (strcmp(temp -> nodekey, key) == 0) // 만약 임시 노드에 있는 key가 받아온 key와 같다면
 		{
-			printf("%s", temp -> nodevalue); // 노드에 있는 value 출력 // 디버깅 용도 - 추후 삭제 
-			buf = temp -> nodevalue; // 밸류값을 buf에 넣는다.
-			return buf; // buf를 리턴한다. 
+			//printf("%s", temp -> nodevalue); // 노드에 있는 value 출력 // 디버깅 용도 - 추후 삭제 
+			buf = temp -> nodevalue; // 밸류값을 buf에 넣는다. 
 		}
         temp = temp -> next; // 임시 노드를 다음 노드로 넘김.
     }
@@ -114,15 +115,21 @@ int kvdel(char *key)
 	struct hashNode* temp = hashTable[hash]; // 임시 노드에 첫번째 노드 복사
 	//printf("%d", hash); // 디버깅 용도 - 추후 삭제 
 	struct hashNode* delNode = hashTable[hash]; // 삭제 노드에 첫번째 노드 복사 
-	if (hashTable[hash] -> nodekey == key) // 만약 첫 번째 노드의 키가 삭제하여야 할 노드라면 
+	if (hashTable[hash] == NULL)
+	{
+		return 0;
+	}
+	else if (strcmp(hashTable[hash] -> nodekey, key) == 0) // 만약 첫 번째 노드의 키가 삭제하여야 할 노드라면
 	{
 		delNode = hashTable[hash]; // delNode에 첫 번째 노드를 복사한다. 
         hashTable[hash] = hashTable[hash] -> next; // 다음 노드를 첫 번째 노드로 설정한다. 
+        return 0;
 	}
 	else
 	{
 		while(1) // 해시 테이블이 비어 있을 때 까지 탐색 
 		{
+			temp = temp -> next; // 임시 노드를 다음 노드로 넘김.
 			if (temp == NULL) // 해시 테이블이 비어 있으면 
 			{
 				return 0; // 0을 리턴하고 함수 종료. 
@@ -132,7 +139,6 @@ int kvdel(char *key)
     			temp -> prev = temp -> next; // 임시노드 이전 노드와 다음노드를 연결해 현재 노드를 연결에서 해제한다. 
     			return 0; // 0을 리턴하고 함수 종료. 
 			}
-        temp = temp -> next; // 임시 노드를 다음 노드로 넘김.
     	}
 	}
  	return 0; // 0을 리턴하고 함수 종료. 
