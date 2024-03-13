@@ -121,16 +121,13 @@ int kvput(char *key, char *data) // int형을 리턴하고 key와 data(밸류)�
 int kvdel(char *key) // int형을 리턴하고 key를 받는 kvdel 함수 
 {
 	int hash = hashFunction(key); // hash변수에 hash함수를 통한 해시값을 넣음. 
-	struct hashNode* temp = hashTable[hash]; // 임시 노드에 첫번째 노드 복사
-	//printf("%d", hash); // 디버깅 용도 - 추후 삭제 
-	//struct hashNode* delNode = hashTable[hash]; // 삭제 노드에 첫번째 노드 복사 - 코드 삭제 고려 중 
+	struct hashNode* temp = hashTable[hash]; // 임시 노드에 첫번째 노드 복사 
 	if (hashTable[hash] == NULL) // 해시테이블이 NULL일 경우 
 	{
 		return DEL_ERROR; // 검색할 키를 가진 노드가 없을테니 에러코드 0을 리턴하고 함수 종료. 
 	}
 	else if (strcmp(hashTable[hash] -> nodekey, key) == 0) // 만약 첫 번째 노드의 키가 삭제하여야 할 노드라면
 	{
-		//delNode = hashTable[hash]; // delNode에 첫 번째 노드를 복사한다. - 코드 삭제 고려 중 
         hashTable[hash] = hashTable[hash] -> next; // 다음 노드를 첫 번째 노드로 설정한다. 
         return 0; // 0을 리턴하고 함수 종료.
 	}
