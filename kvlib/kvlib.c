@@ -57,14 +57,13 @@ int kvget(char *key, char *buf)
 	{
 		if (temp == NULL) // 해시 테이블이 비어 있으면 
 		{
-			buf = NULL; // buf에 NULL을 넣음. 
+			strcpy(buf, "\0"); // 널문자를 buf에 넣는다.
 			return 0; // 0을 리턴하고 함수 종료. 
 		}
 		
 		else if (strcmp(temp -> nodekey, key) == 0) // 만약 임시 노드에 있는 key가 받아온 key와 같다면
 		{
-			//printf("%s", temp -> nodevalue); // 노드에 있는 value 출력 // 디버깅 용도 - 추후 삭제 
-			buf = temp -> nodevalue; // 밸류값을 buf에 넣는다.
+			strcpy(buf, temp -> nodevalue); // 밸류값을 buf에 넣는다.
 			return 0;
 		}
         temp = temp -> next; // 임시 노드를 다음 노드로 넘김.
@@ -185,6 +184,7 @@ int kvopen()
 			}
 		}
 		fclose(fp); // fclose로 파일을 닫는다.
+		return 0;
 	}
 	return 0;
 }
