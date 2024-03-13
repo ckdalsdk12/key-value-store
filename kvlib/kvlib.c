@@ -5,10 +5,10 @@
 // 각 모든 함수는 성공시 0, 실패시 각자 정의한 에러코드를 리턴한다.
 
 struct hashNode{
-	char *nodekey;
-	char *nodevalue;
 	struct hashNode *prev;
 	struct hashNode *next;
+	char *nodekey;
+	char *nodevalue;
 };
 
 struct hashNode *hashTable[10007] = {NULL};
@@ -142,11 +142,69 @@ int kvdel(char *key)
 // 기존의 kv store가 없다면 생성한다. 
 int kvopen()
 {
- 	return 0;
+	FILE *fp; // fp란 이름의 파일포인터 생성 
+	fp = fopen("kv-store.txt", "r"); // kv-store.txt 파일을 읽기 모드로 오픈. 파일이 없을 경우 NULL 리턴 
+	if (fp == NULL) //  kv-store.txt 파일이 없어서 NULL이 파일포인터에 리턴되었다면 
+	{
+		fp = fopen("kv-store.txt", "w"); // kv-store.txt 파일을 쓰기 모드로 오픈. kv-store.txt 파일이 생성 됨. 
+		fclose(fp); //  fclose로 파일을 닫는다. 
+		return 0; // 0을 리턴하고 함수 종료.  
+	}
+	else // kv-store.txt 파일이 있어서 제대로 열기가 되었으면 (파일포인터가 NULL이 아니라면) 
+	{
+		while(!feof(fp)) // 파일의 끝에 다다를 때 까지 반복 (feof 함수가 0을 반환할 때 까지) 
+		{
+			int hash; // 해시 값을 받아올 정수형 변수 선언 
+			char *buf1 = malloc((sizeof(char) * 4096) + 1); // 키 값이 들어 갈 4097바이트의 buf1을 동적 할당한다.
+			char *buf2 = malloc(sizeof(char) * 1000000); // 밸류 값이 들어갈 1MB의 buf2를 동적 할당한다. 문제 존재. 밸류 값의 크기를 확정할 수 없으므로 크기 조정 필요. 
+			//printf("%d", i);
+			struct hashNode* newNode = (struct hashNode*)malloc(sizeof(struct hashNode)); // newNode란 이름의 hashNode 동적할당  
+    		newNode -> prev = NULL; // 새로운 노드의 전 노드를 가리키는 값에 NULL을 넣는다.
+    		newNode -> next = NULL; // 새로운 노드의 다음 노드를 가리키는 값에 NULL을 넣는다.
+    		fscanf(fp, "%d %s %s\n", &hash, buf1, buf2);
+			// 파일안에 있는 내용을 공백과 개행으로 구분하여 첫번째 내용을 정수형으로 hash에 저장, 두번째 내용을 buf1에, 세번째 내용을 buf2에 저장.
+    		newNode -> nodekey = buf1; // newNode의 nodekey에 buf1의 주소 전달.
+    		newNode -> nodevalue = buf2; // newNode의 nodevalue에 buf2의 주소 전달. 
+    		if (hashTable[hash] == NULL) // 해시 테이블이 비어 있을 경우 
+			{
+    			hashTable[hash] = newNode; // 새로운 노드가 첫번째 노드가 된다. 
+  			}
+  			else // 해시 테이블이 비어 있지 않을 경우 (새로운 노드를 연결해야 할 경우) 
+  			{
+  				hashTable[hash] -> prev = newNode; // 새로운 노드를 제일 앞에 넣고 
+    			newNode -> next = hashTable[hash]; // 새로운 노드의 다음 노드를 기존 첫 번째 노드로 연결하고 
+    			hashTable[hash] = newNode; // 새로운 노드를 첫번째 노드로 연결한다. 기존 첫 번째 노드는 두번째 노드가 된다.
+			}
+		}
+		fclose(fp); // fclose로 파일을 닫는다.
+	}
+	return 0;
 }
 
 // kv store를 close한다. 
 int kvclose()
 {
+	FILE *fp; // fp란 이름의 파일포인터 생성 
+	fp = fopen("kv-store.txt", "w"); // kv-store.txt 파일을 쓰기 모드로 오픈. kv-store.txt의 기존 기록은 삭제되고 새롭게 내용이 작성 됨. 
+	int i; // 반복문에 사용할 정수 형 변수 i 선언 
+	for (i = 0; i < 10007; i++) // 해시 테이블의 인덱스로 i를 사용하기 위해 i를 0부터 10006까지 늘리며 반복함 
+	{
+		struct hashNode* temp = hashTable[i]; // 임시노드에 i번째 해시테이블 복사 
+		while(1) // 나중에 break가 나올때까지 무한 반복 
+		{
+			if (temp == NULL) // i번째 해시테이블을 복사한 임시노드가 비어 있다면 
+			{
+				break; // break 하여 while문 밖으로 나가 for문에 의해 i++번째의 해시테이블을 탐색한다. 
+			}
+			else // i번째 해시테이블을 복사한 임시노드에 데이터가 있다면 
+			{
+				fprintf(fp, "%d %s %s\n", i, temp -> nodekey, temp -> nodevalue);
+				// 파일에 작성할 내용을 공백과 개행으로 구분하여
+				// i(해시테이블의 인덱스이자 해시값)를 첫번째로, 임시노드의 nodekey를 두번째로 , nodevalue를 세번째로 파일에 저장. 
+			}
+			temp = temp -> next; // 임시 노드를 다음 노드로 넘김.
+		}
+	}
+	fclose(fp); // fclose로 파일을 닫는다.
  	return 0;
 }
