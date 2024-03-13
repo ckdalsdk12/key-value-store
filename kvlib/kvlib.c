@@ -165,7 +165,7 @@ int kvopen() // int형을 리턴하는 kvopen 함수
 	}
 	else // kv-store.txt 파일이 있어서 제대로 열기가 되었으면 (파일포인터가 NULL이 아니라면) 
 	{
-		while(!feof(fp)) // 파일의 끝에 다다를 때 까지 반복 (feof 함수가 0을 반환할 때 까지) 
+		while(1) // break문이 나올때까지 반복 
 		{
 			int hash; // 해시 값을 받아올 정수형 변수 선언 
 			char *buf1 = malloc((sizeof(char) * 4096) + 1); // 키 값이 들어 갈 4097바이트의 buf1을 동적 할당한다.
@@ -175,6 +175,7 @@ int kvopen() // int형을 리턴하는 kvopen 함수
     		newNode -> next = NULL; // 새로운 노드의 다음 노드를 가리키는 값에 NULL을 넣는다.
     		fscanf(fp, "%d %s %s\n", &hash, buf1, buf2);
 			// 파일안에 있는 내용을 공백과 개행으로 구분하여 첫번째 내용을 정수형으로 hash에 저장, 두번째 내용을 buf1에, 세번째 내용을 buf2에 저장.
+			if(feof(fp)) break; // 파일의 끝이면 break; 
     		newNode -> nodekey = buf1; // newNode의 nodekey에 buf1의 주소 전달.
     		newNode -> nodevalue = buf2; // newNode의 nodevalue에 buf2의 주소 전달. 
     		if (hashTable[hash] == NULL) // 해시 테이블이 비어 있을 경우 
@@ -189,7 +190,8 @@ int kvopen() // int형을 리턴하는 kvopen 함수
 					if (strcmp(temp -> nodekey, buf1) == 0) // 만약 임시 노드에 있는 key가 받아온 buf1과 같다면
 					{
 						temp -> nodekey = buf1; // 임시 노드에 받은 key값 저장 (덮어쓰기) 
-        				temp -> nodevalue = buf2; // 임시 노드에 받은 value값 저장 (덮어쓰기) 
+        				temp -> nodevalue = buf2; // 임시 노드에 받은 value값 저장 (덮어쓰기)
+        				fclose(fp); // fclose로 파일을 닫는다.
 						return 0; // 0을 리턴하고 함수 종료.
 					}
 					temp = temp -> next; // 임시 노드를 다음 노드로 넘김.
@@ -202,6 +204,7 @@ int kvopen() // int형을 리턴하는 kvopen 함수
 		fclose(fp); // fclose로 파일을 닫는다.
 		return 0; // 0을 리턴하고 함수 종료.
 	}
+	fclose(fp); // fclose로 파일을 닫는다.
 	return 0; // 0을 리턴하고 함수 종료.
 }
 
@@ -223,6 +226,7 @@ int kvclose() /// int형을 리턴하는 kvclose 함수
 				{
 					if(emptyCheck == 0) // 지금까지 파일에 써넣은 데이터가 한개도 없다면 
 					{
+						fclose(fp); // fclose로 파일을 닫는다.
 						return CLOSE_ERROR; // 에러코드 -5를 리턴하고 함수 종료. 
 					}
 				}
