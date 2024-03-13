@@ -185,6 +185,17 @@ int kvopen()
   			}
   			else // 해시 테이블이 비어 있지 않을 경우 (새로운 노드를 연결해야 할 경우) 
   			{
+  				struct hashNode* temp = hashTable[hash]; // 임시 노드에 첫번째 노드 복사 
+				while(temp != NULL) // 해시 테이블이 비어 있을 때 까지 탐색 
+				{
+					if (strcmp(temp -> nodekey, buf1) == 0) // 만약 임시 노드에 있는 key가 받아온 buf1과 같다면
+					{
+						temp -> nodekey = buf1; // 임시 노드에 받은 key값 저장 (덮어쓰기) 
+        				temp -> nodevalue = buf2; // 임시 노드에 받은 value값 저장 (덮어쓰기) 
+						return 0;
+					}
+					temp = temp -> next; // 임시 노드를 다음 노드로 넘김.
+    			}
   				hashTable[hash] -> prev = newNode; // 새로운 노드를 제일 앞에 넣고 
     			newNode -> next = hashTable[hash]; // 새로운 노드의 다음 노드를 기존 첫 번째 노드로 연결하고 
     			hashTable[hash] = newNode; // 새로운 노드를 첫번째 노드로 연결한다. 기존 첫 번째 노드는 두번째 노드가 된다.
