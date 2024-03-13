@@ -64,7 +64,8 @@ int kvget(char *key, char *buf)
 		else if (strcmp(temp -> nodekey, key) == 0) // 만약 임시 노드에 있는 key가 받아온 key와 같다면
 		{
 			//printf("%s", temp -> nodevalue); // 노드에 있는 value 출력 // 디버깅 용도 - 추후 삭제 
-			buf = temp -> nodevalue; // 밸류값을 buf에 넣는다. 
+			buf = temp -> nodevalue; // 밸류값을 buf에 넣는다.
+			return 0;
 		}
         temp = temp -> next; // 임시 노드를 다음 노드로 넘김.
     }
@@ -114,16 +115,16 @@ int kvdel(char *key)
 	int hash = hashFunction(key); // hash변수에 hash함수를 통한 해시값을 넣음. 
 	struct hashNode* temp = hashTable[hash]; // 임시 노드에 첫번째 노드 복사
 	//printf("%d", hash); // 디버깅 용도 - 추후 삭제 
-	struct hashNode* delNode = hashTable[hash]; // 삭제 노드에 첫번째 노드 복사 
-	if (hashTable[hash] == NULL)
+	//struct hashNode* delNode = hashTable[hash]; // 삭제 노드에 첫번째 노드 복사 - 코드 삭제 고려 중 
+	if (hashTable[hash] == NULL) // 해시테이블이 NULL일 경우 
 	{
-		return 0;
+		return 0; // 검색할 키를 가진 노드가 없을테니 0을 리턴하고 함수 종료. 
 	}
 	else if (strcmp(hashTable[hash] -> nodekey, key) == 0) // 만약 첫 번째 노드의 키가 삭제하여야 할 노드라면
 	{
-		delNode = hashTable[hash]; // delNode에 첫 번째 노드를 복사한다. 
+		//delNode = hashTable[hash]; // delNode에 첫 번째 노드를 복사한다. - 코드 삭제 고려 중 
         hashTable[hash] = hashTable[hash] -> next; // 다음 노드를 첫 번째 노드로 설정한다. 
-        return 0;
+        return 0; // 0을 리턴하고 함수 종료.
 	}
 	else
 	{
@@ -136,7 +137,8 @@ int kvdel(char *key)
 			}
 			else if (strcmp(temp -> nodekey, key) == 0) // 만약 임시 노드에 있는 key가 받아온 key와 같다면
 			{
-    			temp -> prev = temp -> next; // 임시노드 이전 노드와 다음노드를 연결해 현재 노드를 연결에서 해제한다. 
+				temp = temp -> prev; 
+    			temp -> next = temp -> next -> next; // 임시노드 이전 노드와 다음노드를 연결해 현재 노드를 연결에서 해제한다. 
     			return 0; // 0을 리턴하고 함수 종료. 
 			}
     	}
